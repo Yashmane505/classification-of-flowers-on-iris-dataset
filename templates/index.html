@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Classification AI</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <script>
+        // Prevent flash
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-main: #24292f;
+            --text-muted: #57606a;
+            --input-bg: #f6f8fa;
+            --primary-btn: #2da44e;
+            --primary-hover: #2c974b;
+        }
+
+        .dark {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --input-bg: #0d1117;
+            --primary-btn: #238636;
+            --primary-hover: #2ea043;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color);
+            color: var(--text-main);
+            transition: background 0.3s ease;
+        }
+
+        .wrapper {
+            display: flex;
+            gap: 24px;
+            align-items: stretch;
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--input-bg);
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #0969da;
+            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+        }
+
+        button.predict-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(27, 31, 36, 0.15);
+            border-radius: 6px;
+            background: var(--primary-btn);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        button.predict-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Results Display */
+        .results-card {
+            animation: slideInLeft 0.5s ease-out;
+            text-align: center;
+        }
+
+        .flower-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background: var(--border-color);
+            color: var(--text-main);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--primary-btn);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="toggle-btn" onclick="toggleDark()" id="themeBtn">🌙 Dark Mode</button>
+
+    <div class="wrapper">
+
+        {% if logistic_result %}
+        <!-- Left Card: Shows up when analysis is complete -->
+        <div class="card results-card">
+            <span class="badge">Model Confidence: {{ confidence }}%</span>
+            <img src="{{ flower_image }}" alt="{{ logistic_result }}" class="flower-image">
+            <h2 class="result-title">{{ logistic_result }}</h2>
+            <p class="subtitle">Linear Model Fallback: {{ linear_result }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Right Card (or Center if no results): Input Form -->
+        <div class="card form-card">
+            <h2>Iris Analyzer</h2>
+            <p class="subtitle">Enter botanical measurements</p>
+
+            <form action="/predict" method="POST">
+                <div class="input-group">
+                    <label>Sepal Length (cm)</label>
+                    <input type="number" step="0.1" min="0.1" max="15.0" name="sepal_length" placeholder="e.g. 5.1"
+                        required>
+                </div>
+
+                <div class="input-group">
+                    <label>Sepal Width (cm)</label>
+                    <input type="number" step="0.1" min="0.1" max="15.0" name="sepal_width" placeholder="e.g. 3.5"
+                        required>
+                </div>
+
+                <div class="input-group">
+                    <label>Petal Length (cm)</label>
+                    <input type="number" step="0.1" min="0.1" max="15.0" name="petal_length" placeholder="e.g. 1.4"
+                        required>
+                </div>
+
+                <div class="input-group">
+                    <label>Petal Width (cm)</label>
+                    <input type="number" step="0.1" min="0.1" max="15.0" name="petal_width" placeholder="e.g. 0.2"
+                        required>
+                </div>
+
+                <button type="submit" class="predict-btn">Analyze Flower</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleDark() {
+            document.documentElement.classList.toggle("dark");
+            const btn = document.getElementById("themeBtn");
+
+            if (document.documentElement.classList.contains("dark")) {
+                localStorage.setItem("theme", "dark");
+                btn.innerText = "☀️ Light Mode";
+            } else {
+                localStorage.setItem("theme", "light");
+                btn.innerText = "🌙 Dark Mode";
+            }
+        }
+
+        // Initial setup
+        if (document.documentElement.classList.contains("dark")) {
+            document.getElementById("themeBtn").innerText = "☀️ Light Mode";
+        }
+    </script>
+
+</body>
+
+</html>
