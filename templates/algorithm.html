@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm - Iris Classification AI</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1"></script>
+
+    <script>
+        // Prevent flash
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-main: #24292f;
+            --text-muted: #57606a;
+            --accent-color: #0969da;
+            --primary-btn: #2da44e;
+        }
+
+        .dark {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-color: #58a6ff;
+            --primary-btn: #238636;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background 0.3s ease;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        h1 { font-size: 32px; }
+        h2 { font-size: 24px; margin-top: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .math {
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            overflow-x: auto;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .dark .math { background: rgba(255, 255, 255, 0.05); }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            background: var(--card-bg);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .infographic {
+            width: 100%;
+            height: 300px;
+            margin: 24px 0;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sigmoid-curve {
+            position: relative;
+            width: 90%;
+            height: 80%;
+        }
+
+        .algorithm-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .algo-step {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.02);
+        }
+        .dark .algo-step { background: rgba(255,255,255,0.02); }
+
+        .algo-step h3 { font-size: 16px; color: var(--accent-color); }
+        .algo-step p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="toggle-btn" onclick="toggleDark()" id="themeBtn"> Dark Mode</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/" class="btn btn-outline">← Back to App</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h1>Algorithm Documentation</h1>
+            <p>Our Iris Classification AI uses <strong>Logistic Regression</strong> as its primary classification engine, supported by <strong>Linear Regression</strong> for comparative analysis.</p>
+
+            <div class="chart-container">
+                <canvas id="sigmoidChart"></canvas>
+            </div>
+
+            <h2>What is Logistic Regression?</h2>
+            <p>Despite the name "regression," Logistic Regression is used for <strong>Classification</strong>. It estimates the probability of a given input belonging to a specific category (Setosa, Versicolor, or Virginica).</p>
+
+            <div class="math">
+                P(y=1|X) = σ(W · X + b) = 1 / (1 + e^-(W · X + b))
+            </div>
+            <p>Where <em>σ</em> is the Sigmoid Function, which maps any real value into the range (0, 1), representing a probability.</p>
+
+            <h2>How it works on Iris</h2>
+            <div class="algorithm-box">
+                <div class="algo-step">
+                    <h3>1. Feature Input</h3>
+                    <p>We take 4 features: Sepal Length, Sepal Width, Petal Length, and Petal Width.</p>
+                </div>
+                <div class="algo-step">
+                    <h3>2. Probability Map</h3>
+                    <p>The model calculates weights for each feature to determine how much it influences the species type.</p>
+                </div>
+                <div class="algo-step">
+                    <h3>3. Decision Boundary</h3>
+                    <p>A threshold is applied. For multi-class (Iris), we use "One-vs-Rest" or Softmax to pick the highest score.</p>
+                </div>
+            </div>
+
+            <h2>Comparative Analysis</h2>
+            <p>In this app, we compare Two approaches:</p>
+            <ul>
+                <li><strong>Logistic Regression:</strong> Predicts discrete categories. More accurate for this dataset.</li>
+                <li><strong>Linear Regression:</strong> Predicts continuous values (0 to 2), which we then round to the nearest flower index.</li>
+            </ul>
+
+            <p style="margin-top: 24px; font-style: italic; color: var(--text-muted);">
+                Data Source: Fisher's Iris Dataset (1936), a classic in machine learning education.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function toggleDark() {
+            document.documentElement.classList.toggle("dark");
+            const btn = document.getElementById("themeBtn");
+
+            if (document.documentElement.classList.contains("dark")) {
+                localStorage.setItem("theme", "dark");
+                btn.innerText = " Light Mode";
+                updateChart(true);
+            } else {
+                localStorage.setItem("theme", "light");
+                btn.innerText = " Dark Mode";
+                updateChart(false);
+            }
+        }
+
+        // Sigmoid Chart Logic
+        let myChart;
+        function updateChart(isDark) {
+            const ctx = document.getElementById('sigmoidChart').getContext('2d');
+            const data = [];
+            for (let x = -6; x <= 6; x += 0.5) {
+                data.push({x: x, y: 1 / (1 + Math.exp(-x))});
+            }
+
+            const color = isDark ? '#58a6ff' : '#0969da';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            const textColor = isDark ? '#c9d1d9' : '#24292f';
+
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Sigmoid Function σ(x)',
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial setup
+        const isDark = document.documentElement.classList.contains("dark");
+        if (isDark) {
+            document.getElementById("themeBtn").innerText = " Light Mode";
+        }
+        updateChart(isDark);
+    </script>
+
+</body>
+
+</html>

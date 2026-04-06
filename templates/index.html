@@ -25,6 +25,7 @@
             --input-bg: #f6f8fa;
             --primary-btn: #2da44e;
             --primary-hover: #2c974b;
+            --accent-color: #0969da;
         }
 
         .dark {
@@ -36,6 +37,7 @@
             --input-bg: #0d1117;
             --primary-btn: #238636;
             --primary-hover: #2ea043;
+            --accent-color: #58a6ff;
         }
 
         * {
@@ -137,6 +139,24 @@
             background: var(--primary-hover);
         }
 
+        .info-btn {
+            background: var(--accent-color) !important;
+            border: none;
+            margin-top: 15px;
+            color: #ffffff;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .info-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
         .toggle-btn {
             position: absolute;
             top: 20px;
@@ -199,7 +219,7 @@
 
 <body>
 
-    <button class="toggle-btn" onclick="toggleDark()" id="themeBtn">🌙 Dark Mode</button>
+    <button class="toggle-btn" onclick="toggleDark()" id="themeBtn"> Dark Mode</button>
 
     <div class="wrapper">
 
@@ -210,6 +230,13 @@
             <img src="{{ flower_image }}" alt="{{ logistic_result }}" class="flower-image">
             <h2 class="result-title">{{ logistic_result }}</h2>
             <p class="subtitle">Linear Model Fallback: {{ linear_result }}</p>
+            <p class="subtitle">Logistic Model Fallback: {{ logistic_result }}</p>
+            
+            <a href="/algorithm" style="text-decoration: none;">
+                <button class="info-btn">
+                    How it works? 
+                </button>
+            </a>
         </div>
         {% endif %}
 
@@ -256,16 +283,16 @@
 
             if (document.documentElement.classList.contains("dark")) {
                 localStorage.setItem("theme", "dark");
-                btn.innerText = "☀️ Light Mode";
+                btn.innerText = " Light Mode";
             } else {
                 localStorage.setItem("theme", "light");
-                btn.innerText = "🌙 Dark Mode";
+                btn.innerText = " Dark Mode";
             }
         }
 
         // Initial setup
         if (document.documentElement.classList.contains("dark")) {
-            document.getElementById("themeBtn").innerText = "☀️ Light Mode";
+            document.getElementById("themeBtn").innerText = " Light Mode";
         }
     </script>
 

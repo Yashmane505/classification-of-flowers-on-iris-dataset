@@ -12,6 +12,10 @@ logistic_model = pickle.load(open("logistic_model.pkl", "rb"))
 def home():
     return render_template("index.html")
 
+@app.route('/algorithm')
+def algorithm():
+    return render_template("algorithm.html")
+
 @app.route('/predict', methods=['POST'])
 def predict():
     features = [
